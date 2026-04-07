@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_shared_rich_texts",
+  "info": {
+    "displayName": "Rich text",
+    "icon": "slideshow"
+  },
+  "options": {},
+  "attributes": {
+    "body": {
+      "type": "richtext"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_shared_slides",
+  "info": {
+    "displayName": "Slide",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "files": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}
