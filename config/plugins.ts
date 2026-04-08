@@ -3,10 +3,10 @@ import type { Core } from '@strapi/strapi';
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
   upload: {
     config: {
-      provider: 'aws-s3',
-      rootPath: env('CDN_ROOT_PATH'),
-      providerOptions: {
+      provider: env('UPLOAD_PROVIDER'), // 默认使用 local
+      providerOptions: env('UPLOAD_PROVIDER') === 'aws-s3' ? {
         baseUrl: env('R2_CUSTOM_DOMAIN'),
+        rootPath: env('CDN_ROOT_PATH'),
         s3Options: {
           credentials: {
             accessKeyId: env('R2_ACCESS_KEY_ID'),
@@ -19,9 +19,14 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin =>
             // 不要设置 ACL - R2 不支持 ACL
           },
         },
-      },
+      } : {},
       security: {
         allowedTypes: ['image/*', 'video/*', 'application/*'],
+      },
+      actionOptions: {
+        upload: {},
+        uploadStream: {},
+        delete: {},
       },
     },
   },
