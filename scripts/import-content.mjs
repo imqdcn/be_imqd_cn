@@ -3,19 +3,45 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import matter from 'gray-matter';
 
-const args = new Set(process.argv.slice(2));
-const dryRun = args.has('--dry-run');
-const noStrict = args.has('--no-strict');
+const argv = process.argv.slice(2);
+const argSet = new Set(argv);
+const dryRun = argSet.has('--dry-run');
+const noStrict = argSet.has('--no-strict');
+
+function getArgValue(name) {
+  const key = `--${name}`;
+  const withEquals = argv.find((item) => item.startsWith(`${key}=`));
+  if (withEquals) {
+    return withEquals.slice(key.length + 1);
+  }
+
+  const index = argv.findIndex((item) => item === key);
+  if (index >= 0 && argv[index + 1] && !argv[index + 1].startsWith('--')) {
+    return argv[index + 1];
+  }
+
+  return undefined;
+}
 
 const strictMode = !noStrict;
 
 const baseUrl = process.env.STRAPI_BASE_URL || 'http://localhost:1337';
 const token = process.env.STRAPI_CONTENT_TOKEN;
 const contentDir = process.env.CONTENT_DIR || 'content/articles';
-const reportFile = process.env.CONTENT_IMPORT_REPORT || 'reports/content-import-report.json';
+const singleFileArg = getArgValue('file');
+const onlySlugArg = getArgValue('slug');
+const reportFileArg = getArgValue('report');
+const reportFile = reportFileArg || process.env.CONTENT_IMPORT_REPORT || 'reports/content-import-report.json';
 const failFast = process.env.CONTENT_IMPORT_FAIL_FAST !== 'false';
 const allowPlaintextPassword = process.env.ALLOW_PLAINTEXT_PASSWORD === 'true';
 const isProduction = process.env.NODE_ENV === 'production';
+
+const onlySlugs = new Set(
+  String(onlySlugArg || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+);
 
 if (!token && !dryRun) {
   console.error('[import-content] Missing STRAPI_CONTENT_TOKEN in environment.');
@@ -463,17 +489,20 @@ async function updateArticle(id, data) {
 
 async function run() {
   const absoluteDir = path.resolve(process.cwd(), contentDir);
+  const singleFilePath = singleFileArg ? path.resolve(process.cwd(), singleFileArg) : null;
+  const targetPath = singleFilePath || absoluteDir;
+
   const exists = await fs
-    .access(absoluteDir)
+    .access(targetPath)
     .then(() => true)
     .catch(() => false);
 
   if (!exists) {
-    console.error(`[import-content] Content directory not found: ${absoluteDir}`);
+    console.error(`[import-content] Content path not found: ${targetPath}`);
     process.exit(1);
   }
 
-  const files = await walkMarkdownFiles(absoluteDir);
+  const files = singleFilePath ? [singleFilePath] : await walkMarkdownFiles(absoluteDir);
   if (!files.length) {
     console.log('[import-content] No markdown files found.');
     return;
@@ -485,7 +514,7 @@ async function run() {
     generatedAt: new Date().toISOString(),
     dryRun,
     strictMode,
-    contentDir: absoluteDir,
+    contentDir: singleFilePath ? path.dirname(singleFilePath) : absoluteDir,
     summary: {
       total: files.length,
       validated: 0,
@@ -507,6 +536,12 @@ async function run() {
       const raw = await fs.readFile(filePath, 'utf8');
       const { data: frontmatter, content } = matter(raw);
       context.payload = toArticlePayload(filePath, frontmatter, content.trim(), context);
+
+      if (onlySlugs.size > 0 && !onlySlugs.has(context.slug)) {
+        context.action = 'SKIP';
+        context.warnings.push('Skipped by --slug filter');
+        continue;
+      }
 
       if (context.slug && slugSet.has(context.slug)) {
         context.errors.push(`Duplicated slug in this batch: ${context.slug}`);
@@ -603,6 +638,10 @@ async function run() {
   }
 
   for (const context of contexts) {
+    if (context.action === 'SKIP') {
+      continue;
+    }
+
     context.valid = context.errors.length === 0;
     report.items.push({
       filePath: context.filePath,

@@ -213,6 +213,9 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 2. 正式导入：`npm run content:import`
 3. 生产推荐：`npm run content:import:safe`
 4. 非严格排障：`npm run content:import:lenient`
+5. 单篇导入：`node scripts/import-content.mjs --file content/articles/xxx.md`
+6. slug 过滤导入：`node scripts/import-content.mjs --slug slug-a,slug-b`
+7. 自定义报告：`node scripts/import-content.mjs --dry-run --report reports/review-xxx.json`
 
 导入策略：
 - 按 `slug` 判断，存在则更新，不存在则创建。
@@ -221,6 +224,12 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 - 校验包含：必填字段、字段类型、重复 slug、关联 ID 存在性。
 - 每次执行会生成导入报告 JSON，便于审计与回溯。
 - 导入报告包含字段差异摘要（旧值/新值），可用于内容发布审批。
+
+创建/修改操作说明：
+- 单篇创建：新增 markdown 且使用新 slug，执行 `--file` 导入。
+- 单篇修改：编辑已有 slug 对应 markdown，执行 `--file` 导入。
+- 批量创建：新增多篇新 slug markdown，执行目录级导入。
+- 批量修改：编辑多篇已有 markdown，执行目录级导入或 `--slug` 定向导入。
 
 安全建议：
 - 不要把 `STRAPI_CONTENT_TOKEN` 提交到仓库。
@@ -271,3 +280,12 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 - 在服务端新增受保护内容的统一响应中间层，避免未来多模型重复实现。
 - 前端 Nuxt 搭建后，先做 API SDK 封装：article detail + unlock 二段流。
 - 内容侧建议逐步切换到 Markdown 为主、后台补录为辅的运营方式，提升发布效率。
+
+---
+
+## 11. 升级后快速回归清单
+- 详见：`Docs/Strapi升级后10分钟导入回归清单.md`
+
+## 12. 生产环境手工发布流（无 CI）
+- 详见：`Docs/Markdown发布工作流.md` 的“生产环境手工发布流（无 CI）”章节。
+- 执行原则：先 dry-run 再 write，保留报告，失败优先回滚 markdown 后重导入。
