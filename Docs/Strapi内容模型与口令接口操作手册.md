@@ -4,7 +4,7 @@
 本手册用于沉淀当前项目的内容建模改造、口令解锁接口定制、Postman 测试方式与 Strapi 升级指南，便于后续开发、联调和版本迭代。
 
 适用项目：be_imqd_cn  
-最后更新：2026-04-12
+最后更新：2026-04-12（含 Markdown 发布工作流）
 
 ---
 
@@ -22,6 +22,9 @@
 - 新增解锁接口：POST /api/articles/:id/unlock。
 - 覆盖文章详情返回逻辑：未解锁返回安全摘要，解锁后返回完整内容。
 - 新增 Postman Collection + Environment。
+- 新增 Markdown 发布工作流（Frontmatter 自动映射 Article 字段）。
+- 新增内容导入脚本与命令：`npm run content:import`、`npm run content:import:dry`。
+- 导入脚本升级为生产模式：严格校验、两阶段执行、关联检查、JSON 报告输出。
 
 ---
 
@@ -68,7 +71,14 @@
 - postman/strapi-blog.postman_collection.json
 - postman/strapi-blog.local.postman_environment.json
 
-### 3.5 构建生成类型文件（由 Strapi 生成）
+### 3.5 Markdown 发布相关
+- scripts/import-content.mjs
+- content/articles/hello-markdown.md
+- Docs/Markdown发布工作流.md
+- .env.example（新增导入变量）
+- package.json（新增导入命令和 gray-matter 依赖）
+
+### 3.6 构建生成类型文件（由 Strapi 生成）
 - types/generated/contentTypes.d.ts
 - types/generated/components.d.ts
 
@@ -172,6 +182,49 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 ### 7.2 环境变量建议
 - ARTICLE_UNLOCK_SECRET：强随机字符串，生产必配。
 - JWT_SECRET：保留 Strapi 原有用途。
+- STRAPI_BASE_URL：内容导入时的 Strapi 地址。
+- STRAPI_CONTENT_TOKEN：内容导入 API Token。
+- CONTENT_DIR：Markdown 内容目录，默认 `content/articles`。
+- CONTENT_IMPORT_REPORT：导入报告输出路径，默认 `reports/content-import-report.json`。
+- CONTENT_IMPORT_FAIL_FAST：失败即停止，默认 true。
+- ALLOW_PLAINTEXT_PASSWORD：是否允许明文 password，生产建议 false。
+
+### 7.3 Markdown 发布工作流
+目标：通过 Markdown + Frontmatter 批量创建/更新 Article，减少后台手工录入。
+
+主要文件：
+- `scripts/import-content.mjs`：导入脚本（支持 dry-run）。
+- `content/articles/*.md`：内容源文件。
+
+支持字段（Frontmatter 常用）：
+- title、slug、description、excerpt、contentType
+- author、category、tags
+- topicCollections、wikiNodes、quizSet
+- featured、pinned、readingTime、viewCount、likeCount
+- isProtected、accessLevel、passwordHint、unlockTtlSeconds
+- password（导入时自动转 passwordHash）或 passwordHash
+- seo、cover、publish
+
+正文映射规则：
+- Markdown 正文会写入 `blocks[0]` 的 `shared.rich-text.body`。
+
+命令：
+1. 预检（不写库）：`npm run content:import:dry`
+2. 正式导入：`npm run content:import`
+3. 生产推荐：`npm run content:import:safe`
+4. 非严格排障：`npm run content:import:lenient`
+
+导入策略：
+- 按 `slug` 判断，存在则更新，不存在则创建。
+- `publish: true` 时自动设置 `publishedAt`。
+- 严格模式下采用两阶段执行：先校验，后写入；校验失败不写库。
+- 校验包含：必填字段、字段类型、重复 slug、关联 ID 存在性。
+- 每次执行会生成导入报告 JSON，便于审计与回溯。
+- 导入报告包含字段差异摘要（旧值/新值），可用于内容发布审批。
+
+安全建议：
+- 不要把 `STRAPI_CONTENT_TOKEN` 提交到仓库。
+- 不建议长期保留 Frontmatter 明文 `password`，导入后建议改为仅保留 `passwordHash`。
 
 ---
 
@@ -217,3 +270,4 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 - 将 Unlock Article 的 Postman 测试脚本补齐为自动写入 unlockToken。
 - 在服务端新增受保护内容的统一响应中间层，避免未来多模型重复实现。
 - 前端 Nuxt 搭建后，先做 API SDK 封装：article detail + unlock 二段流。
+- 内容侧建议逐步切换到 Markdown 为主、后台补录为辅的运营方式，提升发布效率。
