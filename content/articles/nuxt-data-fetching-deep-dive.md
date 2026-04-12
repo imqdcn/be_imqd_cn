@@ -4,7 +4,7 @@ slug: nuxt-data-fetching-deep-dive
 description: 以真实博客场景拆解 Nuxt3 数据请求设计，覆盖并发、缓存、错误恢复与渲染策略。
 excerpt: 好的数据请求层不只是“拿到数据”，更是把稳定性、性能和可维护性一起设计进去。
 contentType: long
-author: 1
+author: 2
 featured: true
 pinned: false
 isProtected: false

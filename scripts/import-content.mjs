@@ -62,6 +62,7 @@ const relationEndpointMap = {
   topicCollections: '/api/topic-collections',
   wikiNodes: '/api/knowledge-nodes',
 };
+const relationCache = new Map();
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
@@ -160,6 +161,15 @@ function normalizeManyRelation(value) {
   return value
     .map((item) => Number(item))
     .filter((item) => Number.isInteger(item) && item > 0);
+}
+function normalizeManyRelationMixed(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => (typeof item === 'string' ? item.trim() : item))
+    .filter((item) => item !== '' && item !== null && item !== undefined);
 }
 
 function createFileContext(filePath) {
@@ -457,12 +467,109 @@ function toArticlePayload(filePath, frontmatter, markdownBody, context) {
 }
 
 async function findArticleIdBySlug(slug) {
-  const url = `${baseUrl}/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=slug`;
+  const url = `${baseUrl}/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=slug&fields[1]=documentId&fields[2]=id`;
   const result = await requestJson(url, { method: 'GET' });
   const first = result?.data?.[0];
-  return first?.id;
+  return first?.documentId || first?.id;
 }
 
+async function loadRelationMap(endpoint) {
+  if (relationCache.has(endpoint)) {
+    return relationCache.get(endpoint);
+  }
+
+  const result = await requestJson(`${baseUrl}${endpoint}?pagination[pageSize]=200&fields[0]=id&fields[1]=documentId`, {
+    method: 'GET',
+  });
+
+  const map = new Map();
+  for (const row of result?.data || []) {
+    const id = row?.id;
+    const documentId = row?.documentId;
+    if (Number.isInteger(id) && documentId) {
+      map.set(String(id), String(documentId));
+      map.set(String(documentId), String(documentId));
+    }
+  }
+
+  relationCache.set(endpoint, map);
+  return map;
+}
+
+async function toDocumentIds(field, value) {
+  const endpoint = relationEndpointMap[field];
+  const relationMap = await loadRelationMap(endpoint);
+
+  const values = Array.isArray(value) ? value : [value];
+  const resolved = [];
+  const unresolved = [];
+
+  for (const raw of values) {
+    const normalized = typeof raw === 'string' ? raw.trim() : String(raw);
+    const found = relationMap.get(normalized);
+    if (found) {
+      resolved.push(found);
+    } else {
+      unresolved.push(raw);
+    }
+  }
+
+  return { resolved, unresolved, mapSize: relationMap.size };
+}
+
+async function normalizeRelationPayload(context) {
+  if (!context.payload) {
+    return;
+  }
+
+  const singleFields = ['author', 'category', 'quizSet'];
+  for (const field of singleFields) {
+    if (context.payload[field] === undefined) {
+      continue;
+    }
+
+    const originalValue = context.payload[field];
+    const { resolved, unresolved, mapSize } = await toDocumentIds(field, originalValue);
+    if (unresolved.length > 0) {
+      const fallbackId = Number(originalValue);
+      if (mapSize === 0 && Number.isInteger(fallbackId) && fallbackId > 0) {
+        context.warnings.push(`Relation ${field} map unavailable, fallback to numeric id=${fallbackId}`);
+        context.payload[field] = fallbackId;
+        continue;
+      }
+      context.errors.push(`Relation ${field} value not found: ${unresolved.join(', ')}`);
+      continue;
+    }
+
+    context.payload[field] = {
+      connect: [resolved[0]],
+    };
+  }
+
+  const manyFields = ['tags', 'topicCollections', 'wikiNodes'];
+  for (const field of manyFields) {
+    if (!Array.isArray(context.payload[field]) || context.payload[field].length === 0) {
+      continue;
+    }
+
+    const originalValues = context.payload[field];
+    const { resolved, unresolved, mapSize } = await toDocumentIds(field, originalValues);
+    if (unresolved.length > 0) {
+      const fallbackIds = normalizeManyRelation(originalValues);
+      if (mapSize === 0 && fallbackIds.length === originalValues.length) {
+        context.warnings.push(`Relation ${field} map unavailable, fallback to numeric ids=${fallbackIds.join(', ')}`);
+        context.payload[field] = fallbackIds;
+        continue;
+      }
+      context.errors.push(`Relation ${field} value not found: ${unresolved.join(', ')}`);
+      continue;
+    }
+
+    context.payload[field] = {
+      connect: resolved,
+    };
+  }
+}
 async function fetchArticleForDiff(id) {
   const url = `${baseUrl}/api/articles/${id}?populate[0]=author&populate[1]=category&populate[2]=tags&populate[3]=topicCollections&populate[4]=wikiNodes&populate[5]=quizSet&populate[6]=cover&populate[7]=seo&populate[8]=blocks`;
   const result = await requestJson(url, { method: 'GET' });
@@ -479,23 +586,64 @@ async function entityExists(endpoint, id) {
   }
 }
 
+async function entityExistsByDocumentId(endpoint, documentId) {
+  const url = `${baseUrl}${endpoint}?filters[documentId][$eq]=${encodeURIComponent(documentId)}&fields[0]=documentId&pagination[pageSize]=1`;
+  try {
+    const result = await requestJson(url, { method: 'GET' });
+    return Boolean(result?.data?.length);
+  } catch {
+    return false;
+  }
+}
+
 async function validateRelations(context) {
   const payload = context.payload;
   const checks = [];
 
-  if (payload.author) checks.push(['author', payload.author]);
-  if (payload.category) checks.push(['category', payload.category]);
-  if (payload.quizSet) checks.push(['quizSet', payload.quizSet]);
+  const readConnect = (value) => {
+    if (!value || typeof value !== 'object') {
+      return [];
+    }
+    if (!Array.isArray(value.connect)) {
+      return [];
+    }
+    return value.connect;
+  };
 
-  for (const id of payload.tags || []) checks.push(['tags', id]);
-  for (const id of payload.topicCollections || []) checks.push(['topicCollections', id]);
-  for (const id of payload.wikiNodes || []) checks.push(['wikiNodes', id]);
+  const readSingleNumeric = (value) => {
+    const id = Number(value);
+    return Number.isInteger(id) && id > 0 ? [id] : [];
+  };
 
-  for (const [field, id] of checks) {
+  const readManyNumeric = (value) => {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item > 0);
+  };
+
+  for (const docId of readConnect(payload.author)) checks.push(['author', docId]);
+  for (const docId of readConnect(payload.category)) checks.push(['category', docId]);
+  for (const docId of readConnect(payload.quizSet)) checks.push(['quizSet', docId]);
+  for (const docId of readConnect(payload.tags)) checks.push(['tags', docId]);
+  for (const docId of readConnect(payload.topicCollections)) checks.push(['topicCollections', docId]);
+  for (const docId of readConnect(payload.wikiNodes)) checks.push(['wikiNodes', docId]);
+
+  for (const id of readSingleNumeric(payload.author)) checks.push(['author', id]);
+  for (const id of readSingleNumeric(payload.category)) checks.push(['category', id]);
+  for (const id of readSingleNumeric(payload.quizSet)) checks.push(['quizSet', id]);
+  for (const id of readManyNumeric(payload.tags)) checks.push(['tags', id]);
+  for (const id of readManyNumeric(payload.topicCollections)) checks.push(['topicCollections', id]);
+  for (const id of readManyNumeric(payload.wikiNodes)) checks.push(['wikiNodes', id]);
+
+  for (const [field, relationValue] of checks) {
     const endpoint = relationEndpointMap[field];
-    const exists = await entityExists(endpoint, id);
+    const exists = Number.isInteger(relationValue)
+      ? await entityExists(endpoint, relationValue)
+      : await entityExistsByDocumentId(endpoint, relationValue);
     if (!exists) {
-      context.errors.push(`Relation ${field} id=${id} does not exist`);
+      const key = Number.isInteger(relationValue) ? 'id' : 'documentId';
+      context.errors.push(`Relation ${field} ${key}=${relationValue} does not exist`);
       if (failFast) {
         break;
       }
@@ -566,7 +714,6 @@ async function run() {
 
   const contexts = [];
   const slugSet = new Set();
-
   for (const filePath of files) {
     const context = createFileContext(filePath);
     contexts.push(context);
@@ -575,6 +722,10 @@ async function run() {
       const raw = await fs.readFile(filePath, 'utf8');
       const { data: frontmatter, content } = matter(raw);
       context.payload = toArticlePayload(filePath, frontmatter, content.trim(), context);
+
+      if (token && context.payload) {
+        await normalizeRelationPayload(context);
+      }
 
       if (onlySlugs.size > 0 && !onlySlugs.has(context.slug)) {
         context.action = 'SKIP';

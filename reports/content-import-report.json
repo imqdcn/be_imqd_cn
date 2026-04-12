@@ -1,28 +1,24 @@
 {
-  "generatedAt": "2026-04-12T14:02:04.166Z",
-  "dryRun": true,
+  "generatedAt": "2026-04-12T15:09:49.548Z",
+  "dryRun": false,
   "strictMode": true,
   "contentDir": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles",
   "summary": {
     "total": 1,
-    "validated": 1,
+    "validated": 0,
     "created": 0,
     "updated": 0,
-    "failed": 0
+    "failed": 1
   },
   "items": [
     {
-      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\hello-markdown.md",
-      "slug": "markdown-import-demo",
-      "action": "VALIDATE",
-      "existingId": null,
-      "writtenId": null,
-      "valid": true,
-      "diffSummary": null,
-      "errors": [],
-      "warnings": [
-        "STRAPI_CONTENT_TOKEN not set in dry-run; diff summary skipped"
-      ]
+      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\nuxt-data-fetching-deep-dive.md",
+      "slug": "nuxt-data-fetching-deep-dive",
+      "action": "UNKNOWN",
+      "errors": [
+        "request failed"
+      ],
+      "warnings": []
     }
   ]
 }
