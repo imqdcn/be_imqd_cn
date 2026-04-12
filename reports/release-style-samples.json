@@ -1,0 +1,355 @@
+{
+  "generatedAt": "2026-04-12T14:53:17.838Z",
+  "dryRun": false,
+  "strictMode": true,
+  "contentDir": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles",
+  "summary": {
+    "total": 6,
+    "validated": 4,
+    "created": 4,
+    "updated": 0,
+    "failed": 0
+  },
+  "items": [
+    {
+      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\css-architecture-practical-guide.md",
+      "slug": "css-architecture-practical-guide",
+      "action": "CREATE",
+      "writtenId": 5,
+      "valid": true,
+      "diffSummary": {
+        "type": "create",
+        "changedCount": 15,
+        "changedFields": [
+          {
+            "field": "title",
+            "to": "CSS 架构实战：从样式混乱到系统可复用"
+          },
+          {
+            "field": "slug",
+            "to": "css-architecture-practical-guide"
+          },
+          {
+            "field": "description",
+            "to": "面向中后台与内容站的 CSS 架构落地指南，包含命名、层级、主题与组件边界。"
+          },
+          {
+            "field": "excerpt",
+            "to": "CSS 问题大多不是语法问题，而是边界问题。先定义系统，再写样式。"
+          },
+          {
+            "field": "contentType",
+            "to": "long"
+          },
+          {
+            "field": "featured",
+            "to": false
+          },
+          {
+            "field": "pinned",
+            "to": false
+          },
+          {
+            "field": "viewCount",
+            "to": 0
+          },
+          {
+            "field": "likeCount",
+            "to": 0
+          },
+          {
+            "field": "isProtected",
+            "to": false
+          },
+          {
+            "field": "accessLevel",
+            "to": "public"
+          },
+          {
+            "field": "unlockTtlSeconds",
+            "to": 1800
+          },
+          {
+            "field": "seo",
+            "to": {
+              "metaTitle": "CSS 架构实战：从样式混乱到系统可复用",
+              "metaDescription": "从工程实践角度讲清楚 CSS 组织与长期维护。"
+            }
+          },
+          {
+            "field": "blocks",
+            "from": {
+              "count": 0,
+              "hash": "da39a3ee5e6b"
+            },
+            "to": {
+              "count": 1,
+              "hash": "7d140b71e855"
+            }
+          },
+          {
+            "field": "author",
+            "to": 2
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\frontend-short-note-300.md",
+      "slug": "frontend-short-note-300",
+      "action": "CREATE",
+      "writtenId": 7,
+      "valid": true,
+      "diffSummary": {
+        "type": "create",
+        "changedCount": 15,
+        "changedFields": [
+          {
+            "field": "title",
+            "to": "前端短记：别让“优化”变成错觉"
+          },
+          {
+            "field": "slug",
+            "to": "frontend-short-note-300"
+          },
+          {
+            "field": "description",
+            "to": "约300字的短文示例，适合动态流信息阅读。"
+          },
+          {
+            "field": "excerpt",
+            "to": "优化不等于堆技术名词，先用指标证明问题，再用用户感知验证结果。"
+          },
+          {
+            "field": "contentType",
+            "to": "short"
+          },
+          {
+            "field": "featured",
+            "to": false
+          },
+          {
+            "field": "pinned",
+            "to": false
+          },
+          {
+            "field": "viewCount",
+            "to": 0
+          },
+          {
+            "field": "likeCount",
+            "to": 0
+          },
+          {
+            "field": "isProtected",
+            "to": false
+          },
+          {
+            "field": "accessLevel",
+            "to": "public"
+          },
+          {
+            "field": "unlockTtlSeconds",
+            "to": 1800
+          },
+          {
+            "field": "seo",
+            "to": {
+              "metaTitle": "前端短记：别让优化变成错觉",
+              "metaDescription": "一篇约300字前端短文样例。"
+            }
+          },
+          {
+            "field": "blocks",
+            "from": {
+              "count": 0,
+              "hash": "da39a3ee5e6b"
+            },
+            "to": {
+              "count": 1,
+              "hash": "37dda246b288"
+            }
+          },
+          {
+            "field": "author",
+            "to": 2
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\mixed-content-frontend-topic-demo.md",
+      "slug": "mixed-content-frontend-topic-demo",
+      "action": "CREATE",
+      "writtenId": 9,
+      "valid": true,
+      "diffSummary": {
+        "type": "create",
+        "changedCount": 15,
+        "changedFields": [
+          {
+            "field": "title",
+            "to": "前端专题混编示例：观点 + 代码 + 图示 + 清单"
+          },
+          {
+            "field": "slug",
+            "to": "mixed-content-frontend-topic-demo"
+          },
+          {
+            "field": "description",
+            "to": "用一篇文章演示混编写法，适合在 Strapi 中拆分为 RichText、Quote、CodeSnippet、Media 等内容块。"
+          },
+          {
+            "field": "excerpt",
+            "to": "这是一篇混编结构样例，重点不是观点本身，而是展示内容组织方式。"
+          },
+          {
+            "field": "contentType",
+            "to": "topic"
+          },
+          {
+            "field": "featured",
+            "to": false
+          },
+          {
+            "field": "pinned",
+            "to": true
+          },
+          {
+            "field": "viewCount",
+            "to": 0
+          },
+          {
+            "field": "likeCount",
+            "to": 0
+          },
+          {
+            "field": "isProtected",
+            "to": false
+          },
+          {
+            "field": "accessLevel",
+            "to": "public"
+          },
+          {
+            "field": "unlockTtlSeconds",
+            "to": 1800
+          },
+          {
+            "field": "seo",
+            "to": {
+              "metaTitle": "前端专题混编示例",
+              "metaDescription": "演示如何组织可读性更强的混编内容。"
+            }
+          },
+          {
+            "field": "blocks",
+            "from": {
+              "count": 0,
+              "hash": "da39a3ee5e6b"
+            },
+            "to": {
+              "count": 1,
+              "hash": "8eca312cf67d"
+            }
+          },
+          {
+            "field": "author",
+            "to": 2
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\nuxt-data-fetching-deep-dive.md",
+      "slug": "nuxt-data-fetching-deep-dive",
+      "action": "CREATE",
+      "writtenId": 11,
+      "valid": true,
+      "diffSummary": {
+        "type": "create",
+        "changedCount": 15,
+        "changedFields": [
+          {
+            "field": "title",
+            "to": "Nuxt3 数据请求深挖：从能用到可维护"
+          },
+          {
+            "field": "slug",
+            "to": "nuxt-data-fetching-deep-dive"
+          },
+          {
+            "field": "description",
+            "to": "以真实博客场景拆解 Nuxt3 数据请求设计，覆盖并发、缓存、错误恢复与渲染策略。"
+          },
+          {
+            "field": "excerpt",
+            "to": "好的数据请求层不只是“拿到数据”，更是把稳定性、性能和可维护性一起设计进去。"
+          },
+          {
+            "field": "contentType",
+            "to": "long"
+          },
+          {
+            "field": "featured",
+            "to": true
+          },
+          {
+            "field": "pinned",
+            "to": false
+          },
+          {
+            "field": "viewCount",
+            "to": 0
+          },
+          {
+            "field": "likeCount",
+            "to": 0
+          },
+          {
+            "field": "isProtected",
+            "to": false
+          },
+          {
+            "field": "accessLevel",
+            "to": "public"
+          },
+          {
+            "field": "unlockTtlSeconds",
+            "to": 1800
+          },
+          {
+            "field": "seo",
+            "to": {
+              "metaTitle": "Nuxt3 数据请求深挖：从能用到可维护",
+              "metaDescription": "从博客场景切入，系统拆解 Nuxt3 的请求层设计方法。"
+            }
+          },
+          {
+            "field": "blocks",
+            "from": {
+              "count": 0,
+              "hash": "da39a3ee5e6b"
+            },
+            "to": {
+              "count": 1,
+              "hash": "c6a639ff69ef"
+            }
+          },
+          {
+            "field": "author",
+            "to": 2
+          }
+        ]
+      },
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

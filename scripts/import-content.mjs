@@ -1,6 +1,9 @@
+import 'dotenv/config';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import http from 'node:http';
+import https from 'node:https';
 import matter from 'gray-matter';
 
 const argv = process.argv.slice(2);
@@ -83,34 +86,70 @@ async function walkMarkdownFiles(dir) {
   return files;
 }
 
+async function requestWithNodeHttp(url, options = {}) {
+  const target = new URL(url);
+  const isHttps = target.protocol === 'https:';
+  const client = isHttps ? https : http;
+
+  return new Promise((resolve, reject) => {
+    const req = client.request(
+      {
+        protocol: target.protocol,
+        hostname: target.hostname,
+        port: target.port || (isHttps ? 443 : 80),
+        path: `${target.pathname}${target.search}`,
+        method: options.method || 'GET',
+        headers: options.headers || {},
+      },
+      (res) => {
+        let raw = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+          raw += chunk;
+        });
+        res.on('end', () => {
+          let json;
+          try {
+            json = raw ? JSON.parse(raw) : {};
+          } catch {
+            json = { raw };
+          }
+
+          if ((res.statusCode || 500) >= 400) {
+            const message = json?.error?.message || json?.message || raw || `HTTP ${res.statusCode}`;
+            reject(new Error(`[${res.statusCode}] ${message}`));
+            return;
+          }
+
+          resolve(json);
+        });
+      }
+    );
+
+    req.on('error', (err) => reject(new Error(err.message || 'request failed')));
+
+    if (options.body) {
+      req.write(options.body);
+    }
+
+    req.end();
+  });
+}
+
 async function requestJson(url, options = {}) {
   if (!token) {
     throw new Error('STRAPI_CONTENT_TOKEN is required for API requests.');
   }
 
-  const response = await fetch(url, {
-    ...options,
+  return requestWithNodeHttp(url, {
+    method: options.method || 'GET',
+    body: options.body,
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
       ...(options.headers || {}),
     },
   });
-
-  const text = await response.text();
-  let json;
-  try {
-    json = text ? JSON.parse(text) : {};
-  } catch {
-    json = { raw: text };
-  }
-
-  if (!response.ok) {
-    const message = json?.error?.message || json?.message || text || response.statusText;
-    throw new Error(`[${response.status}] ${message}`);
-  }
-
-  return json;
 }
 
 function normalizeManyRelation(value) {
@@ -431,10 +470,10 @@ async function fetchArticleForDiff(id) {
 }
 
 async function entityExists(endpoint, id) {
-  const url = `${baseUrl}${endpoint}/${id}?fields[0]=id`;
+  const url = `${baseUrl}${endpoint}?filters[id][$eq]=${id}&fields[0]=id&pagination[pageSize]=1`;
   try {
-    await requestJson(url, { method: 'GET' });
-    return true;
+    const result = await requestJson(url, { method: 'GET' });
+    return Boolean(result?.data?.length);
   } catch {
     return false;
   }
@@ -608,6 +647,10 @@ async function run() {
 
   if (!dryRun) {
     for (const context of contexts) {
+      if (context.action === 'SKIP') {
+        continue;
+      }
+
       if (context.errors.length > 0 || !context.payload) {
         report.summary.failed += 1;
         continue;
