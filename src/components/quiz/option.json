@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_quiz_options",
+  "info": {
+    "displayName": "Option",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "maxLength": 8
+    },
+    "text": {
+      "type": "text",
+      "required": true
+    },
+    "isCorrect": {
+      "type": "boolean",
+      "default": false,
+      "private": true
+    }
+  },
+  "config": {}
+}

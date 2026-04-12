@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "topic_collections",
+  "info": {
+    "singularName": "topic-collection",
+    "pluralName": "topic-collections",
+    "displayName": "Topic Collection"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 120
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "summary": {
+      "type": "text"
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "orderMode": {
+      "type": "enumeration",
+      "enum": [
+        "manual",
+        "newest",
+        "hottest"
+      ],
+      "default": "manual"
+    },
+    "posts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::article.article",
+      "mappedBy": "topicCollections"
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

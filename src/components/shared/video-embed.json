@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_shared_video_embeds",
+  "info": {
+    "displayName": "Video Embed",
+    "icon": "play"
+  },
+  "options": {},
+  "attributes": {
+    "provider": {
+      "type": "enumeration",
+      "enum": [
+        "bilibili",
+        "youtube",
+        "custom"
+      ],
+      "default": "custom"
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "poster": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  },
+  "config": {}
+}

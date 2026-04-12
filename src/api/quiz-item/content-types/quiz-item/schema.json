@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quiz_items",
+  "info": {
+    "singularName": "quiz-item",
+    "pluralName": "quiz-items",
+    "displayName": "Quiz Item"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "stem": {
+      "type": "text",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "single",
+        "multiple",
+        "judge",
+        "fill"
+      ],
+      "required": true
+    },
+    "score": {
+      "type": "integer",
+      "default": 1,
+      "min": 1
+    },
+    "options": {
+      "type": "component",
+      "component": "quiz.option",
+      "repeatable": true
+    },
+    "answer": {
+      "type": "text",
+      "required": true,
+      "private": true
+    },
+    "analysis": {
+      "type": "richtext"
+    },
+    "quizSet": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz-set.quiz-set",
+      "inversedBy": "items",
+      "required": true
+    },
+    "relatedPost": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::article.article",
+      "inversedBy": "quizItems"
+    }
+  }
+}

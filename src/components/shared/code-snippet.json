@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_shared_code_snippets",
+  "info": {
+    "displayName": "Code Snippet",
+    "icon": "code"
+  },
+  "options": {},
+  "attributes": {
+    "language": {
+      "type": "string"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "code": {
+      "type": "text",
+      "required": true
+    }
+  },
+  "config": {}
+}

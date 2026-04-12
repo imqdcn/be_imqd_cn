@@ -12,23 +12,94 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "maxLength": 120
     },
     "description": {
       "type": "text"
     },
     "slug": {
-      "type": "uid"
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "excerpt": {
+      "type": "text",
+      "maxLength": 300
+    },
+    "contentType": {
+      "type": "enumeration",
+      "enum": [
+        "long",
+        "short",
+        "gallery",
+        "video",
+        "quiz",
+        "topic",
+        "wiki"
+      ],
+      "required": true,
+      "default": "long"
     },
     "cover": {
       "type": "media",
       "multiple": false,
       "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
+        "images"
       ]
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "readingTime": {
+      "type": "integer",
+      "min": 1
+    },
+    "viewCount": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "likeCount": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "isProtected": {
+      "type": "boolean",
+      "default": false
+    },
+    "accessLevel": {
+      "type": "enumeration",
+      "enum": [
+        "public",
+        "password"
+      ],
+      "default": "public"
+    },
+    "passwordHint": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "passwordHash": {
+      "type": "string",
+      "private": true
+    },
+    "unlockTtlSeconds": {
+      "type": "integer",
+      "default": 1800,
+      "min": 60
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
     },
     "category": {
       "type": "relation",
@@ -36,20 +107,53 @@
       "target": "api::category.category",
       "inversedBy": "articles"
     },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "inversedBy": "posts"
+    },
+    "topicCollections": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::topic-collection.topic-collection",
+      "inversedBy": "posts"
+    },
+    "wikiNodes": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::knowledge-node.knowledge-node",
+      "inversedBy": "posts"
+    },
+    "quizSet": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::quiz-set.quiz-set",
+      "inversedBy": "posts"
+    },
+    "quizItems": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::quiz-item.quiz-item",
+      "mappedBy": "relatedPost"
+    },
     "blocks": {
       "type": "dynamiczone",
       "components": [
         "shared.slide",
         "shared.rich-text",
         "shared.quote",
-        "shared.media"
+        "shared.media",
+        "shared.video-embed",
+        "shared.code-snippet"
       ]
     },
     "author": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::author.author",
-      "inversedBy": "articles"
+      "inversedBy": "articles",
+      "required": true
     }
   }
 }
