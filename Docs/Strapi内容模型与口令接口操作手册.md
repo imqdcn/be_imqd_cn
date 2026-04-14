@@ -23,8 +23,8 @@
 - 覆盖文章详情返回逻辑：未解锁返回安全摘要，解锁后返回完整内容。
 - 新增 Postman Collection + Environment。
 - 新增 Markdown 发布工作流（Frontmatter 自动映射 Article 字段）。
-- 新增内容导入脚本与命令：`npm run content:import`、`npm run content:import:dry`。
-- 导入脚本升级为生产模式：严格校验、两阶段执行、关联检查、JSON 报告输出。
+- 新增后台插件导入方式：`/admin/plugins/markdown-import`。
+- 导入能力支持 create/update、结果报告与失败明细展示。
 
 ---
 
@@ -72,11 +72,9 @@
 - postman/strapi-blog.local.postman_environment.json
 
 ### 3.5 Markdown 发布相关
-- scripts/import-content.mjs
 - content/articles/hello-markdown.md
 - Docs/Markdown发布工作流.md
-- .env.example（新增导入变量）
-- package.json（新增导入命令和 gray-matter 依赖）
+- package.json（保留 gray-matter 依赖，导入命令已迁移为插件入口）
 
 ### 3.6 构建生成类型文件（由 Strapi 生成）
 - types/generated/contentTypes.d.ts
@@ -182,19 +180,14 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 ### 7.2 环境变量建议
 - ARTICLE_UNLOCK_SECRET：强随机字符串，生产必配。
 - JWT_SECRET：保留 Strapi 原有用途。
-- STRAPI_BASE_URL：内容导入时的 Strapi 地址。
-- STRAPI_CONTENT_TOKEN：内容导入 API Token。
-- CONTENT_DIR：Markdown 内容目录，默认 `content/articles`。
-- CONTENT_IMPORT_REPORT：导入报告输出路径，默认 `reports/content-import-report.json`。
-- CONTENT_IMPORT_FAIL_FAST：失败即停止，默认 true。
-- ALLOW_PLAINTEXT_PASSWORD：是否允许明文 password，生产建议 false。
+- Markdown 导入通过后台登录态执行，不需要额外 `STRAPI_CONTENT_TOKEN`。
 
 ### 7.3 Markdown 发布工作流
-目标：通过 Markdown + Frontmatter 批量创建/更新 Article，减少后台手工录入。
+目标：通过 Markdown + Frontmatter 在后台插件中批量创建/更新 Article，减少后台手工录入。
 
 主要文件：
-- `scripts/import-content.mjs`：导入脚本（支持 dry-run）。
 - `content/articles/*.md`：内容源文件。
+- 插件页面：`/admin/plugins/markdown-import`。
 
 支持字段（Frontmatter 常用）：
 - title、slug、description、excerpt、contentType
@@ -208,31 +201,23 @@ node -e "console.log(require('crypto').createHash('sha256').update('123456').dig
 正文映射规则：
 - Markdown 正文会写入 `blocks[0]` 的 `shared.rich-text.body`。
 
-命令：
-1. 预检（不写库）：`npm run content:import:dry`
-2. 正式导入：`npm run content:import`
-3. 生产推荐：`npm run content:import:safe`
-4. 非严格排障：`npm run content:import:lenient`
-5. 单篇导入：`node scripts/import-content.mjs --file content/articles/xxx.md`
-6. slug 过滤导入：`node scripts/import-content.mjs --slug slug-a,slug-b`
-7. 自定义报告：`node scripts/import-content.mjs --dry-run --report reports/review-xxx.json`
+操作入口：
+1. 登录 Strapi 后台，进入 Markdown 导入页面。
+2. 选择文件或粘贴内容后执行导入。
+3. 在页面“导入结果”中查看 create/update/failed 明细。
 
 导入策略：
 - 按 `slug` 判断，存在则更新，不存在则创建。
+- 优先按 `documentId` 匹配，未命中再按 `slug` 匹配。
 - `publish: true` 时自动设置 `publishedAt`。
-- 严格模式下采用两阶段执行：先校验，后写入；校验失败不写库。
-- 校验包含：必填字段、字段类型、重复 slug、关联 ID 存在性。
-- 每次执行会生成导入报告 JSON，便于审计与回溯。
-- 导入报告包含字段差异摘要（旧值/新值），可用于内容发布审批。
+- 页面内可直接查看导入摘要与逐项错误信息。
 
 创建/修改操作说明：
-- 单篇创建：新增 markdown 且使用新 slug，执行 `--file` 导入。
-- 单篇修改：编辑已有 slug 对应 markdown，执行 `--file` 导入。
-- 批量创建：新增多篇新 slug markdown，执行目录级导入。
-- 批量修改：编辑多篇已有 markdown，执行目录级导入或 `--slug` 定向导入。
+- 单篇创建：新增 markdown 且使用新 slug，在插件页面导入单文件。
+- 单篇修改：编辑已有 slug 对应 markdown，在插件页面再次导入。
+- 批量创建/修改：一次选择多篇 markdown 执行导入。
 
 安全建议：
-- 不要把 `STRAPI_CONTENT_TOKEN` 提交到仓库。
 - 不建议长期保留 Frontmatter 明文 `password`，导入后建议改为仅保留 `passwordHash`。
 
 ---

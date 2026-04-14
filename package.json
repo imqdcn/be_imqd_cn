@@ -6,10 +6,6 @@
   "scripts": {
     "build": "strapi build",
     "console": "strapi console",
-    "content:import": "node scripts/import-content.mjs",
-    "content:import:dry": "node scripts/import-content.mjs --dry-run",
-    "content:import:safe": "node scripts/import-content.mjs",
-    "content:import:lenient": "node scripts/import-content.mjs --no-strict",
     "deploy": "strapi deploy",
     "dev": "strapi develop",
     "develop": "strapi develop",

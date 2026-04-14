@@ -4,7 +4,7 @@ slug: markdown-import-demo
 description: 使用 Markdown + Frontmatter 导入 Strapi Article 的示例
 excerpt: 这是一篇用于验证导入能力的示例文章。
 contentType: long
-author: 1
+author: 2
 category: 1
 tags: [1]
 featured: true
