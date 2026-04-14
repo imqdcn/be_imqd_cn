@@ -4,7 +4,7 @@ slug: css-architecture-practical-guide
 description: 面向中后台与内容站的 CSS 架构落地指南，包含命名、层级、主题与组件边界。
 excerpt: CSS 问题大多不是语法问题，而是边界问题。先定义系统，再写样式。
 contentType: long
-author: 1
+author: 2
 featured: false
 pinned: false
 isProtected: false

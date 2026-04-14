@@ -2,13 +2,14 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM"],
     "target": "ES2019",
     "strict": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "esModuleInterop": true,
+    "jsx": "react-jsx",
     "resolveJsonModule": true,
     "noEmitOnError": true,
     "noImplicitThis": true,
@@ -37,8 +38,6 @@
     // Do not include admin files in the server compilation
     "src/admin/",
     // Do not include test files
-    "**/*.test.*",
-    // Do not include plugins in the server compilation
-    "src/plugins/**"
+    "**/*.test.*"
   ]
 }

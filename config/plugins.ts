@@ -1,6 +1,11 @@
 import type { Core } from '@strapi/strapi';
+import path from 'path';
 
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
+  'markdown-import': {
+    enabled: true,
+    resolve: path.resolve(__dirname, '../src/plugins/markdown-import'),
+  },
   upload: {
     config: {
       provider: env('UPLOAD_PROVIDER'), // 默认使用 local

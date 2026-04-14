@@ -4,7 +4,7 @@ slug: frontend-short-note-300
 description: 约300字的短文示例，适合动态流信息阅读。
 excerpt: 优化不等于堆技术名词，先用指标证明问题，再用用户感知验证结果。
 contentType: short
-author: 1
+author: 2
 featured: false
 pinned: false
 isProtected: false

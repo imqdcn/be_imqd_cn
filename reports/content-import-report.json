@@ -1,23 +1,103 @@
 {
-  "generatedAt": "2026-04-12T15:09:49.548Z",
+  "generatedAt": "2026-04-13T08:29:21.818Z",
   "dryRun": false,
   "strictMode": true,
-  "contentDir": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles",
+  "contentDir": "D:\\MyProjects\\be.imqd.cn\\content\\articles",
   "summary": {
     "total": 1,
-    "validated": 0,
-    "created": 0,
+    "validated": 1,
+    "created": 1,
     "updated": 0,
-    "failed": 1
+    "failed": 0
   },
   "items": [
     {
-      "filePath": "F:\\MyProject\\IMQDCN\\be_imqd_cn\\content\\articles\\nuxt-data-fetching-deep-dive.md",
-      "slug": "nuxt-data-fetching-deep-dive",
-      "action": "UNKNOWN",
-      "errors": [
-        "request failed"
-      ],
+      "filePath": "D:\\MyProjects\\be.imqd.cn\\content\\articles\\css-architecture-practical-guide.md",
+      "slug": "css-architecture-practical-guide",
+      "action": "CREATE",
+      "writtenId": 2,
+      "valid": true,
+      "diffSummary": {
+        "type": "create",
+        "changedCount": 15,
+        "changedFields": [
+          {
+            "field": "title",
+            "to": "CSS 架构实战：从样式混乱到系统可复用"
+          },
+          {
+            "field": "slug",
+            "to": "css-architecture-practical-guide"
+          },
+          {
+            "field": "description",
+            "to": "面向中后台与内容站的 CSS 架构落地指南，包含命名、层级、主题与组件边界。"
+          },
+          {
+            "field": "excerpt",
+            "to": "CSS 问题大多不是语法问题，而是边界问题。先定义系统，再写样式。"
+          },
+          {
+            "field": "contentType",
+            "to": "long"
+          },
+          {
+            "field": "featured",
+            "to": false
+          },
+          {
+            "field": "pinned",
+            "to": false
+          },
+          {
+            "field": "viewCount",
+            "to": 0
+          },
+          {
+            "field": "likeCount",
+            "to": 0
+          },
+          {
+            "field": "isProtected",
+            "to": false
+          },
+          {
+            "field": "accessLevel",
+            "to": "public"
+          },
+          {
+            "field": "unlockTtlSeconds",
+            "to": 1800
+          },
+          {
+            "field": "seo",
+            "to": {
+              "metaTitle": "CSS 架构实战：从样式混乱到系统可复用",
+              "metaDescription": "从工程实践角度讲清楚 CSS 组织与长期维护。"
+            }
+          },
+          {
+            "field": "blocks",
+            "from": {
+              "count": 0,
+              "hash": "da39a3ee5e6b"
+            },
+            "to": {
+              "count": 1,
+              "hash": "7d140b71e855"
+            }
+          },
+          {
+            "field": "author",
+            "to": {
+              "connect": [
+                "j4cn4c2tin8cdqu52hk8ktuz"
+              ]
+            }
+          }
+        ]
+      },
+      "errors": [],
       "warnings": []
     }
   ]

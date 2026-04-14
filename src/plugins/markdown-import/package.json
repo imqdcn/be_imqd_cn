@@ -1,0 +1,11 @@
+{
+  "name": "strapi-plugin-markdown-import",
+  "version": "0.0.1",
+  "private": true,
+  "strapi": {
+    "name": "markdown-import",
+    "displayName": "Markdown Import",
+    "kind": "plugin"
+  },
+  "main": "strapi-server.ts"
+}
