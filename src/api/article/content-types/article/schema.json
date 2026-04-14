@@ -16,9 +16,6 @@
       "required": true,
       "maxLength": 120
     },
-    "description": {
-      "type": "text"
-    },
     "slug": {
       "type": "uid",
       "targetField": "title",
@@ -30,24 +27,14 @@
     },
     "contentType": {
       "type": "enumeration",
-      "enum": [
-        "long",
-        "short",
-        "gallery",
-        "video",
-        "quiz",
-        "topic",
-        "wiki"
-      ],
+      "enum": ["long", "short", "gallery", "video", "quiz", "topic", "wiki"],
       "required": true,
       "default": "long"
     },
     "cover": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
+      "allowedTypes": ["images"]
     },
     "featured": {
       "type": "boolean",
@@ -77,19 +64,30 @@
     },
     "accessLevel": {
       "type": "enumeration",
-      "enum": [
-        "public",
-        "password"
-      ],
+      "enum": ["public", "password"],
       "default": "public"
     },
     "passwordHint": {
       "type": "string",
       "maxLength": 80
     },
+    "password": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
     "passwordHash": {
       "type": "string",
-      "private": true
+      "private": true,
+      "configurable": false,
+      "pluginOptions": {
+        "content-type-builder": {
+          "visible": false
+        },
+        "content-manager": {
+          "visible": false
+        }
+      }
     },
     "unlockTtlSeconds": {
       "type": "integer",

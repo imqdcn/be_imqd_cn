@@ -178,7 +178,7 @@ export default factories.createCoreController('api::article.article', ({ strapi 
 			return ctx.badRequest('Password is not configured for this article');
 		}
 
-		if (hashPassword(password) !== article.passwordHash) {
+		if (hashPassword(password) !== String(article.passwordHash)) {
 			return ctx.unauthorized('Invalid password');
 		}
 
